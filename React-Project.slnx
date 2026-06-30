@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="React.API/React.API.csproj" />
+  <Project Path="React.BLL/React.BLL.csproj" />
+  <Project Path="React.DAL/React.DAL.csproj" />
+</Solution>
