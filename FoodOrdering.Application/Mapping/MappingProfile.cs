@@ -1,0 +1,37 @@
+using AutoMapper;
+using FoodOrdering.Application.DTOs.Cart;
+using FoodOrdering.Application.DTOs.Category;
+using FoodOrdering.Application.DTOs.Meal;
+using FoodOrdering.Application.DTOs.Order;
+using FoodOrdering.Domain.Entities;
+
+namespace FoodOrdering.Application.Mapping;
+
+public class MappingProfile : Profile
+{
+    public MappingProfile()
+    {
+        CreateMap<Category, CategoryDto>()
+            .ForMember(dest => dest.MealsCount, opt => opt.Ignore());
+        CreateMap<CreateCategoryDto, Category>();
+        CreateMap<UpdateCategoryDto, Category>();
+
+        CreateMap<Meal, MealDto>()
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
+        CreateMap<CreateMealDto, Meal>();
+        CreateMap<UpdateMealDto, Meal>();
+
+        CreateMap<CartItem, CartItemDto>()
+            .ForMember(dest => dest.MealName, opt => opt.MapFrom(src => src.Meal.Name))
+            .ForMember(dest => dest.MealImageUrl, opt => opt.MapFrom(src => src.Meal.ImageUrl))
+            .ForMember(dest => dest.MealPrice, opt => opt.MapFrom(src => src.Meal.Price));
+
+        CreateMap<Order, OrderDto>()
+            .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.User.FullName))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderItems));
+        CreateMap<OrderItem, OrderItemDto>()
+            .ForMember(dest => dest.MealName, opt => opt.MapFrom(src => src.Meal.Name))
+            .ForMember(dest => dest.MealImageUrl, opt => opt.MapFrom(src => src.Meal.ImageUrl));
+    }
+}

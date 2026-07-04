@@ -1,34 +1,68 @@
+using Serilog;
+using React.API.Middleware;
+using React.BLL;
+using React.DAL;
+using React.DAL.Services;
 
-namespace React.API
+var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Console()
+    .WriteTo.File("logs/foodordering-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddCors(options =>
 {
-    public class Program
+    options.AddPolicy("AllowAll", policy =>
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
-            // Add services to the container.
+var app = builder.Build();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "Food Ordering API v1");
+        options.RoutePrefix = string.Empty;
+    });
+}
 
-            var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-            }
+app.UseCors("AllowAll");
 
-            app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
-            app.UseAuthorization();
+app.MapControllers();
 
+await SeedService.SeedAsync(app.Services);
 
-            app.MapControllers();
-
-            app.Run();
-        }
-    }
+try
+{
+    Log.Information("Starting Food Ordering API");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
 }
