@@ -16,6 +16,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         return await _dbSet
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Meal)
+            .Include(o => o.User)
             .Where(o => o.UserId == userId)
             .OrderByDescending(o => o.OrderDate)
             .ToListAsync();
@@ -26,6 +27,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         return await _dbSet
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Meal)
+            .Include(o => o.User)
             .FirstOrDefaultAsync(o => o.Id == id);
     }
 

@@ -36,6 +36,28 @@ public class MealsController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPost("upload")]
+    public async Task<ActionResult<ApiResponse<string>>> UploadImage(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(ApiResponse<string>.FailureResult("No file uploaded"));
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(extension))
+            return BadRequest(ApiResponse<string>.FailureResult("Invalid file format. Allowed: jpg, jpeg, png, gif, webp"));
+
+        var fileName = $"{Guid.NewGuid()}{extension}";
+        var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "meals");
+        var filePath = Path.Combine(uploadsDir, fileName);
+
+        await using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        var url = $"/uploads/meals/{fileName}";
+        return Ok(ApiResponse<string>.SuccessResult(url, "Image uploaded successfully"));
+    }
+
     [HttpPost]
     public async Task<ActionResult<ApiResponse<MealDto>>> Create([FromBody] CreateMealDto createDto)
     {

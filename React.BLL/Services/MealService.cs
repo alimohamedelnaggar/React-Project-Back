@@ -55,6 +55,7 @@ public class MealService : IMealService
             throw new NotFoundException(nameof(Category), createDto.CategoryId);
 
         var meal = _mapper.Map<Meal>(createDto);
+        meal.Category = category;
         await _unitOfWork.Meals.AddAsync(meal);
         await _unitOfWork.CompleteAsync();
 

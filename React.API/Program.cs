@@ -1,4 +1,5 @@
 using Serilog;
+using FluentValidation.AspNetCore;
 using React.API.Middleware;
 using React.BLL;
 using React.DAL;
@@ -14,6 +15,7 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
@@ -41,6 +43,8 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty;
     });
 }
+
+app.UseStaticFiles();
 
 app.UseMiddleware<ExceptionMiddleware>();
 

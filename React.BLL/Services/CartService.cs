@@ -54,10 +54,10 @@ public class CartService : ICartService
         var existingItem = cart.CartItems.FirstOrDefault(ci => ci.MealId == addToCartDto.MealId);
         if (existingItem != null)
         {
-            existingItem.Quantity += addToCartDto.Quantity;
-            if (existingItem.Quantity > meal.Quantity)
+            var newQuantity = existingItem.Quantity + addToCartDto.Quantity;
+            if (newQuantity > meal.Quantity)
                 throw new BadRequestException($"Only {meal.Quantity} items available in stock");
-            _unitOfWork.Carts.Update(cart);
+            existingItem.Quantity = newQuantity;
         }
         else
         {

@@ -33,9 +33,9 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPut("{id}/status")]
-    public async Task<ActionResult<ApiResponse<OrderDto>>> UpdateOrderStatus(int id, [FromBody] string status)
+    public async Task<ActionResult<ApiResponse<OrderDto>>> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDto dto)
     {
-        var response = await _orderService.UpdateOrderStatusAsync(id, status);
+        var response = await _orderService.UpdateOrderStatusAsync(id, dto.Status);
         return Ok(response);
     }
 }

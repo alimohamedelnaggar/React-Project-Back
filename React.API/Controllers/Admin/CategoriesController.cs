@@ -19,9 +19,11 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<IEnumerable<CategoryDto>>>> GetAll()
+    public async Task<ActionResult<ApiResponse<PagedResponse<CategoryDto>>>> GetAll(
+        [FromQuery] int pageIndex = 1,
+        [FromQuery] int pageSize = 10)
     {
-        var response = await _categoryService.GetAllAsync();
+        var response = await _categoryService.GetAllAsync(pageIndex, pageSize);
         return Ok(response);
     }
 
