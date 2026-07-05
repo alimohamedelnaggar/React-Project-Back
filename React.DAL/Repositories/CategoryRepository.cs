@@ -15,4 +15,15 @@ public class CategoryRepository : GenericRepository<Category>, ICategoryReposito
     {
         return await _dbSet.Include(c => c.Meals).FirstOrDefaultAsync(c => c.Id == id);
     }
+
+    public async Task<(IEnumerable<Category> Items, int TotalCount)> GetPagedAsync(int pageIndex, int pageSize)
+    {
+        var query = _dbSet.AsQueryable();
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+        return (items, totalCount);
+    }
 }

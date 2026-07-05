@@ -26,6 +26,20 @@ public class CategoryService : ICategoryService
         return ApiResponse<IEnumerable<CategoryDto>>.SuccessResult(categoryDtos);
     }
 
+    public async Task<ApiResponse<PagedResponse<CategoryDto>>> GetAllAsync(int pageIndex, int pageSize)
+    {
+        var (items, totalCount) = await _unitOfWork.Categories.GetPagedAsync(pageIndex, pageSize);
+        var categoryDtos = _mapper.Map<IEnumerable<CategoryDto>>(items);
+        var response = new PagedResponse<CategoryDto>
+        {
+            Items = categoryDtos,
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+        return ApiResponse<PagedResponse<CategoryDto>>.SuccessResult(response);
+    }
+
     public async Task<ApiResponse<CategoryDto>> GetByIdAsync(int id)
     {
         var category = await _unitOfWork.Categories.GetCategoryWithMealsAsync(id);
